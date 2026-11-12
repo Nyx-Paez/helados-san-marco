@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Panel de administración | Helados San Marco</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <main class="admin-shell">
+        <section id="login-view" class="panel-card">
+            <img src="img/logo-sinfondo.png" alt="Helados San Marco" class="admin-logo">
+            <h1>Panel de administración</h1>
+            <p>Acceso exclusivo para la cuenta autorizada.</p>
+            <button id="login-button" class="primary-button">Ingresar con Google</button>
+            <p id="login-error" class="error-message" role="alert"></p>
+        </section>
+
+        <section id="admin-view" class="panel-card" hidden>
+            <header class="admin-header">
+                <div>
+                    <p class="eyebrow">Helados San Marco</p>
+                    <h1>Contenido del sitio</h1>
+                </div>
+                <button id="logout-button" class="secondary-button">Cerrar sesión</button>
+            </header>
+
+            <form id="content-form">
+                <fieldset>
+                    <legend>Textos principales</legend>
+                    <label>Título<input name="siteTitle" required></label>
+                    <label>Subtítulo<input name="siteSubtitle" required></label>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Precios de mostrador</legend>
+                    <div class="field-grid">
+                        <label>1/4 kg<input name="counterQuarter" type="number" min="0" required></label>
+                        <label>1/2 kg<input name="counterHalf" type="number" min="0" required></label>
+                        <label>3/4 kg<input name="counterThreeQuarter" type="number" min="0" required></label>
+                        <label>1 kg<input name="counterKilo" type="number" min="0" required></label>
+                        <label>Vasito chico<input name="counterSmallCup" type="number" min="0" required></label>
+                        <label>Vasito mediano<input name="counterMediumCup" type="number" min="0" required></label>
+                        <label>Tacita<input name="counterTacita" type="number" min="0" required></label>
+                        <label>Cucurucho<input name="counterCone" type="number" min="0" required></label>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Precios de PedidosYa</legend>
+                    <div class="field-grid">
+                        <label>1/4 kg<input name="deliveryQuarter" type="number" min="0" required></label>
+                        <label>1/2 kg<input name="deliveryHalf" type="number" min="0" required></label>
+                        <label>3/4 kg<input name="deliveryThreeQuarter" type="number" min="0" required></label>
+                        <label>1 kg<input name="deliveryKilo" type="number" min="0" required></label>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Horarios</legend>
+                    <div class="field-grid">
+                        <label>Martes a jueves<input name="hoursTueThu" required></label>
+                        <label>Viernes<input name="hoursFri" required></label>
+                        <label>Sábados<input name="hoursSat" required></label>
+                        <label>Domingos<input name="hoursSun" required></label>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Promociones</legend>
+                    <div id="promotions-fields"></div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Sabores</legend>
+                    <p class="help-text">Usá JSON válido. Para ocultar un sabor temporalmente, cambiá <code>available</code> a <code>false</code>.</p>
+                    <textarea name="flavors" rows="16" spellcheck="false" required></textarea>
+                </fieldset>
+
+                <button class="primary-button" type="submit">Guardar cambios publicados</button>
+                <p id="save-message" class="save-message" role="status"></p>
+            </form>
+        </section>
+    </main>
+    <script type="module" src="admin.js"></script>
+</body>
+</html>

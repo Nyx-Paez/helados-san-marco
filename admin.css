@@ -1,0 +1,59 @@
+:root {
+    --ink: #382219;
+    --muted: #765b4a;
+    --cream: #f3e2cc;
+    --surface: #fff3e1;
+    --orange: #c94f25;
+    --border: #d3a27d;
+}
+
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--ink);
+    background: linear-gradient(135deg, #ead0b2, #f8ead8);
+    font: 16px/1.5 Roboto, Arial, sans-serif;
+}
+.admin-shell { width: min(940px, calc(100% - 32px)); margin: 32px auto; }
+.panel-card {
+    padding: clamp(22px, 4vw, 44px);
+    background: rgba(255, 243, 225, .96);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: 0 20px 50px rgba(79, 41, 22, .18);
+}
+.admin-logo { width: 96px; margin: 0 auto 12px; }
+#login-view { max-width: 480px; margin: 12vh auto; text-align: center; }
+h1, legend { font-family: Georgia, serif; }
+h1 { margin: 0 0 8px; }
+.admin-header { display: flex; justify-content: space-between; gap: 20px; align-items: start; margin-bottom: 28px; }
+.eyebrow { margin: 0; color: var(--orange); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+fieldset { margin: 0 0 24px; padding: 18px; border: 1px solid var(--border); border-radius: 12px; }
+legend { padding: 0 8px; font-size: 1.2rem; }
+label { display: grid; gap: 6px; color: var(--muted); font-weight: 700; }
+input, textarea {
+    width: 100%;
+    padding: 11px 12px;
+    color: var(--ink);
+    background: #fffaf3;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font: inherit;
+}
+textarea { resize: vertical; font-family: ui-monospace, monospace; font-size: .85rem; }
+.field-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+button { border: 0; border-radius: 999px; padding: 11px 18px; font: 700 1rem inherit; cursor: pointer; }
+.primary-button { color: #fff; background: linear-gradient(135deg, #c94318, #ef8150); }
+.secondary-button { color: var(--ink); background: transparent; border: 1px solid var(--border); }
+.primary-button:hover, .secondary-button:hover { filter: brightness(1.06); }
+.help-text, .error-message, .save-message { color: var(--muted); }
+.error-message { color: #a52c1e; min-height: 1.5em; }
+.save-message { min-height: 1.5em; font-weight: 700; }
+.promotion-editor { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; margin-bottom: 12px; }
+code { color: var(--orange); }
+[hidden] { display: none !important; }
+@media (max-width: 620px) {
+    .field-grid, .promotion-editor { grid-template-columns: 1fr; }
+    .admin-header { flex-direction: column; }
+}

@@ -55,6 +55,7 @@ const gustos = [
 document.addEventListener('DOMContentLoaded', () => {
     renderMenu(gustos);
     organizarSecciones();
+    cargarContenidoPublicado();
 });
 
 const modal = document.getElementById('modal-menu');
@@ -107,6 +108,53 @@ function organizarSecciones() {
     pricingSection.after(aboutSection);
 }
 
+function getNestedValue(source, path) {
+    return path.split('.').reduce((value, key) => value?.[key], source);
+}
+
+async function cargarContenidoPublicado() {
+    if (!window.sanMarcoStoreReady) return;
+
+    const content = await window.sanMarcoStoreReady;
+    if (!content) return;
+
+    document.querySelectorAll('[data-price]').forEach((element) => {
+        const value = getNestedValue(content.prices, element.dataset.price);
+        if (typeof value === 'number') element.textContent = `$${value.toLocaleString('es-AR')}`;
+    });
+
+    if (content.site?.title) document.querySelector('.hero-content h1').textContent = content.site.title;
+    if (content.site?.subtitle) document.querySelector('.hero-content > p').textContent = content.site.subtitle;
+
+    if (content.promotions?.length) {
+        const cards = document.querySelectorAll('.promotion-card');
+        content.promotions.slice(0, cards.length).forEach((promotion, index) => {
+            cards[index].querySelector('strong').textContent = promotion.title;
+            cards[index].querySelector('p').textContent = promotion.description;
+        });
+    }
+
+    if (content.hours) {
+        const hours = [
+            `Martes a jueves: ${content.hours.tueThu}`,
+            `Viernes: ${content.hours.fri}`,
+            `Sábados: ${content.hours.sat}`,
+            `Domingos: ${content.hours.sun}`
+        ];
+        document.querySelectorAll('.schedule-popover span').forEach((element, index) => {
+            if (hours[index]) element.textContent = hours[index];
+        });
+        const infoHours = document.querySelectorAll('#ubicacion .info-card:nth-child(2) p');
+        infoHours.forEach((element, index) => {
+            if (hours[index]) element.textContent = hours[index];
+        });
+    }
+
+    if (Array.isArray(content.flavors)) {
+        renderMenu(content.flavors);
+    }
+}
+
 function abrirMenu() {
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -128,6 +176,7 @@ function renderMenu(lista) {
     lista.forEach(g => {
         const item = document.createElement('div');
         item.className = 'sabor-item';
+        if (g.available === false) item.classList.add('out-of-stock');
         
         // Aquí se construye la ruta final: img/gustos/nombre_de_tu_archivo.webp
         const imgPath = `img/gustos/${g.img}`;
@@ -136,6 +185,7 @@ function renderMenu(lista) {
             <div class="sabor-img-box">
                 <img src="${imgPath}" onerror="this.src='img/logo-sinfondo.png'" alt="${g.nombre}">
                 <div class="mini-logo"><img src="img/logo-sinfondo.png"></div>
+                ${g.available === false ? '<span class="stock-label">Sin stock</span>' : ''}
             </div>
             <div class="sabor-info">
                 <h3>${g.nombre}</h3>
@@ -162,7 +212,7 @@ function filtrarMenu(categoria) {
 /* =========================================
    SISTEMA DE HORARIOS
    ========================================= */
-function checkStatus() {
+async function checkStatus() {
     const statusBadge = document.getElementById('status-badge');
     const statusText = document.getElementById('status-text');
     const avisoBox = document.getElementById('aviso-manual');
@@ -179,27 +229,42 @@ function checkStatus() {
 
     const ahora = new Date();
     const dia = ahora.getDay();
-    const hora = ahora.getHours();
+    const minutosActuales = ahora.getHours() * 60 + ahora.getMinutes();
 
     let estaAbierto = false;
-    let abre = 0;
-    let cierra = 0;
     let esDiaLaborable = true;
+    const defaultSchedule = {
+        0: '13:00 a 23:00 hs',
+        2: '15:00 a 23:00 hs',
+        3: '15:00 a 23:00 hs',
+        4: '15:00 a 23:00 hs',
+        5: '16:00 a 23:00 hs',
+        6: '16:00 a 00:00 hs'
+    };
+    const content = window.sanMarcoStoreReady ? await window.sanMarcoStoreReady : null;
+    const schedule = {
+        ...defaultSchedule,
+        ...(content?.hours ? {
+            2: content.hours.tueThu,
+            3: content.hours.tueThu,
+            4: content.hours.tueThu,
+            5: content.hours.fri,
+            6: content.hours.sat,
+            0: content.hours.sun
+        } : {})
+    };
 
     if (dia === 1) {
         esDiaLaborable = false;
-    } else if (dia === 2 || dia === 3 || dia === 4) {
-        abre = 15; cierra = 23;
-    } else if (dia === 5) {
-        abre = 16; cierra = 23;
-    } else if (dia === 6) {
-        abre = 16; cierra = 24;
-    } else if (dia === 0) {
-        abre = 13; cierra = 23;
-    }
-
-    if (esDiaLaborable && hora >= abre && hora < cierra) {
-        estaAbierto = true;
+    } else {
+        const [opening, closing] = schedule[dia].match(/\d{1,2}:\d{2}/g) || [];
+        if (opening && closing) {
+            const [openHour, openMinute] = opening.split(':').map(Number);
+            const [closeHour, closeMinute] = closing.split(':').map(Number);
+            const abre = openHour * 60 + openMinute;
+            const cierra = closeHour * 60 + closeMinute || 24 * 60;
+            estaAbierto = minutosActuales >= abre && minutosActuales < cierra;
+        }
     }
 
     statusBadge.classList.remove('loading');
