@@ -54,9 +54,58 @@ const gustos = [
 
 document.addEventListener('DOMContentLoaded', () => {
     renderMenu(gustos);
+    organizarSecciones();
 });
 
 const modal = document.getElementById('modal-menu');
+
+function organizarSecciones() {
+    const hero = document.querySelector('.hero');
+    const pricing = document.querySelector('.hero-pricing-container');
+    const deliveryCta = document.querySelector('.delivery-cta-box');
+    const menuSection = document.getElementById('menu');
+    const aboutSection = document.getElementById('nosotros');
+
+    if (!hero || !pricing || !deliveryCta || !menuSection || !aboutSection) return;
+
+    const pricingSection = document.createElement('section');
+    pricingSection.id = 'precios';
+    pricingSection.className = 'section-padding pricing-section bg-dark';
+
+    pricingSection.innerHTML = `
+        <div class="container">
+            <h2 class="section-title text-center">Elegí cómo disfrutarlo</h2>
+            <p class="text-center subtitle">Precios para llevar o pedir a domicilio.</p>
+            <div class="promotions-panel">
+                <div class="promotion-card">
+                    <span class="promotion-icon"><i class="fas fa-wallet" aria-hidden="true"></i></span>
+                    <div>
+                        <strong>10% de descuento</strong>
+                        <p>Pagando en efectivo en el local.</p>
+                    </div>
+                </div>
+                <div class="promotion-card">
+                    <span class="promotion-icon"><i class="fas fa-boxes-stacked" aria-hidden="true"></i></span>
+                    <div>
+                        <strong>2 kg por $34.000</strong>
+                        <p>En mostrador, con cualquier medio de pago.</p>
+                    </div>
+                </div>
+                <div class="promotion-card">
+                    <span class="promotion-icon"><i class="fas fa-motorcycle" aria-hidden="true"></i></span>
+                    <div>
+                        <strong>2 kg por $39.000</strong>
+                        <p>Promoción exclusiva de PedidosYa.</p>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    pricingSection.firstElementChild.append(pricing, deliveryCta);
+
+    hero.after(menuSection);
+    menuSection.after(pricingSection);
+    pricingSection.after(aboutSection);
+}
 
 function abrirMenu() {
     modal.classList.add('active');
@@ -137,14 +186,16 @@ function checkStatus() {
     let cierra = 0;
     let esDiaLaborable = true;
 
-    if (dia === 1) { 
+    if (dia === 1) {
         esDiaLaborable = false;
-    } else if (dia === 6) { 
-        abre = 13; cierra = 24; 
+    } else if (dia === 2 || dia === 3 || dia === 4) {
+        abre = 15; cierra = 23;
+    } else if (dia === 5) {
+        abre = 16; cierra = 23;
+    } else if (dia === 6) {
+        abre = 16; cierra = 24;
     } else if (dia === 0) {
         abre = 13; cierra = 23;
-    } else {
-        abre = 14; cierra = 23;
     }
 
     if (esDiaLaborable && hora >= abre && hora < cierra) {
@@ -169,6 +220,37 @@ document.addEventListener('DOMContentLoaded', () => {
     checkStatus();
 });
 
+const statusBadge = document.getElementById('status-badge');
+const schedulePopover = document.getElementById('schedule-popover');
+
+function toggleSchedulePopover(show) {
+    if (!statusBadge || !schedulePopover) return;
+
+    const shouldShow = typeof show === 'boolean'
+        ? show
+        : !schedulePopover.classList.contains('visible');
+
+    schedulePopover.classList.toggle('visible', shouldShow);
+    statusBadge.setAttribute('aria-expanded', String(shouldShow));
+}
+
+if (statusBadge) {
+    statusBadge.addEventListener('click', () => toggleSchedulePopover());
+    statusBadge.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            toggleSchedulePopover();
+        }
+        if (event.key === 'Escape') toggleSchedulePopover(false);
+    });
+}
+
+document.addEventListener('click', (event) => {
+    if (statusBadge && schedulePopover && !statusBadge.contains(event.target) && !schedulePopover.contains(event.target)) {
+        toggleSchedulePopover(false);
+    }
+});
+
 /* =========================================
    MENÚ HAMBURGUESA
    ========================================= */
@@ -189,6 +271,36 @@ navLinksItems.forEach(item => {
         }
     });
 });
+
+/* =========================================
+   MODO CLARO
+   ========================================= */
+const themeToggle = document.querySelector('.theme-toggle');
+const savedTheme = localStorage.getItem('san-marco-theme');
+
+function actualizarThemeToggle() {
+    if (!themeToggle) return;
+
+    const isLightMode = document.body.classList.contains('light-mode');
+    themeToggle.setAttribute('aria-pressed', String(isLightMode));
+    themeToggle.setAttribute('aria-label', isLightMode ? 'Activar modo oscuro' : 'Activar modo claro');
+    themeToggle.querySelector('span').textContent = isLightMode ? 'Modo oscuro' : 'Modo claro';
+    themeToggle.querySelector('i').className = isLightMode ? 'fas fa-moon' : 'fas fa-sun';
+}
+
+if (savedTheme === 'light') {
+    document.body.classList.add('light-mode');
+}
+
+actualizarThemeToggle();
+
+if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+        const isLightMode = document.body.classList.toggle('light-mode');
+        localStorage.setItem('san-marco-theme', isLightMode ? 'light' : 'dark');
+        actualizarThemeToggle();
+    });
+}
 
 /* =========================================
    EFECTO HEADER INTELIGENTE
